@@ -1,36 +1,54 @@
 import streamlit as st
 import pandas as pd
-
-# Sample data - you can load your real scrape_jobs() output instead
-sample_jobs = pd.DataFrame({
-    "Title": ["Bioinformatics Intern", "Lab Assistant", "Entry-Level Data Analyst"],
-    "Company": ["Genentech", "Harvard Medical", "Moderna"],
-    "Location": ["Boston, MA", "Cambridge, MA", "Brookline, MA"],
-    "Posted": ["2 days ago", "1 day ago", "3 days ago"],
-    "Link": ["https://example.com/job1", "https://example.com/job2", "https://example.com/job3"]
-})
+import csv
+from jobspy import scrape_jobs
 
 st.set_page_config(page_title="Job Scraper Demo", layout="wide")
+st.title("🧪 Real-Time Job Scraper")
 
-st.title("🔍 Entry-Level Job Scraper Demo")
-st.write("This demo simulates scraping job listings from major platforms like Indeed, LinkedIn, and Glassdoor.")
+st.write("Search for jobs from multiple job boards using rotating proxies (DataImpulse).")
 
-with st.form("scrape_form"):
-    col1, col2 = st.columns(2)
-    with col1:
-        search_term = st.text_input("Search term", "bioinformatics")
-        platforms = st.multiselect(
-            "Choose job platforms",
-            ["Indeed", "LinkedIn", "Glassdoor"],
-            default=["Indeed"]
+# Sidebar input
+st.sidebar.header("Search Settings")
+
+search_term = st.sidebar.text_input("Search Term", "UI UX -PhD -Master -Head")
+location = st.sidebar.text_input("Location", "MA, USA")
+
+platforms = st.sidebar.multiselect(
+    "Select Platforms",
+    ["indeed", "linkedin", "zip_recruiter", "glassdoor", "google", "bayt", "naukri"],
+    default=["indeed", "linkedin"]
+)
+
+hours_old = st.sidebar.slider("Maximum job age (in hours)", min_value=1, max_value=168, value=144, step=12)
+
+results_limit = st.sidebar.slider("Max results (optional)", min_value=10, max_value=200, value=50, step=10)
+
+run_scrape = st.sidebar.button("Run Scraper")
+
+if run_scrape:
+    st.info("Scraping... please wait 10–30 seconds.")
+
+    try:
+        jobs = scrape_jobs(
+            site_name=platforms,
+            search_term=search_term,
+            location=location,
+            hours_old=hours_old,
+            country_indeed='USA',
+            results_wanted=results_limit,
+            proxies=["728e225554fb4f209000:a39e3c8afd0b1378@gw.dataimpulse.com:823"],
         )
-    with col2:
-        location = st.text_input("Location", "Brookline, MA")
-        max_results = st.slider("Results wanted", min_value=10, max_value=100, value=20, step=10)
 
-    submitted = st.form_submit_button("Run Scraper")
+        st.success(f"✅ Found {len(jobs)} jobs!")
+        st.dataframe(jobs)
 
-if submitted:
-    st.success(f"Scraping {max_results} '{search_term}' jobs from {', '.join(platforms)} in {location}...")
-    st.info("Note: This is a simulated result for demo purposes.")
-    st.dataframe(sample_jobs)
+        csv_button = st.download_button(
+            label="Download Results as CSV",
+            data=jobs.to_csv(quoting=csv.QUOTE_NONNUMERIC, escapechar="\\", index=False),
+            file_name="scraped_jobs.csv",
+            mime="text/csv"
+        )
+
+    except Exception as e:
+        st.error(f"❌ Error occurred: {e}")
