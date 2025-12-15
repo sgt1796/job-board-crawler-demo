@@ -18,6 +18,7 @@ try:
     # environment the POP package may not be available on the Python path.
     from POP.Embedder import Embedder  # type: ignore
 except ModuleNotFoundError:
+    print("POP package not found; using stub Embedder.")
     # Provide a minimal fallback stub so that the evaluator can still be
     # instantiated in tests without network access or POP installation.
     class Embedder:  # type: ignore
