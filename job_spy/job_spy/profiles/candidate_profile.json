@@ -1,0 +1,12 @@
+{
+  "target_titles": ["Bioinformatics Scientist", "Computational Biologist"],
+  "must_have": ["python", "rna-seq", "cloud"],
+  "nice_to_have": ["single-cell", "llm"],
+  "hard_filters": {
+    "location": ["Boston, MA", "Remote"]
+  },
+  "soft_preferences": {
+    "research_weight": 0.7,
+    "engineering_weight": 0.3
+  }
+}

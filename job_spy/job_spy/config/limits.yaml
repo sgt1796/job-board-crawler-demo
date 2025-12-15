@@ -1,0 +1,4 @@
+# Rate limits and other restrictions.  These values are advisory and not
+# enforced in this demo.
+max_applications_per_day: 5
+max_applications_per_company_per_week: 1

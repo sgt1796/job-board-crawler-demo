@@ -1,0 +1,4 @@
+# Configuration for crawler intervals and targets.  Not used in the demo.
+interval_hours: 4
+targets:
+  - source: dummy
